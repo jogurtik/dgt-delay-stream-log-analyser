@@ -1,0 +1,24 @@
+First release
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	new file:   dgt-delay-stream-log-analyser.sln
+#	new file:   dgt-delay-stream-log-analyser/AnalyseObject.cs
+#	new file:   dgt-delay-stream-log-analyser/App.config
+#	new file:   dgt-delay-stream-log-analyser/Form1.Designer.cs
+#	new file:   dgt-delay-stream-log-analyser/Form1.cs
+#	new file:   dgt-delay-stream-log-analyser/Form1.resx
+#	new file:   dgt-delay-stream-log-analyser/Program.cs
+#	new file:   dgt-delay-stream-log-analyser/Properties/AssemblyInfo.cs
+#	new file:   dgt-delay-stream-log-analyser/Properties/Resources.Designer.cs
+#	new file:   dgt-delay-stream-log-analyser/Properties/Resources.resx
+#	new file:   dgt-delay-stream-log-analyser/Properties/Settings.Designer.cs
+#	new file:   dgt-delay-stream-log-analyser/Properties/Settings.settings
+#	new file:   dgt-delay-stream-log-analyser/analyses.cs
+#	new file:   dgt-delay-stream-log-analyser/dgt-delay-stream-log-analyser.csproj
+#
+

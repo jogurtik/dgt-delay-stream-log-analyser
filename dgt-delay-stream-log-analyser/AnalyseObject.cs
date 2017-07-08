@@ -8,6 +8,22 @@ namespace dgt_delay_stream_log_analyser
 {
     class AnalyseObject
     {
+        private String liveChessRunStatus;
+
+        public String LiveChessRunStatus
+        {
+            get { return liveChessRunStatus; }
+            set { liveChessRunStatus = value; }
+        }
+
+        private String liveChessRun;
+
+        public String LiveChessRun
+        {
+            get { return liveChessRun; }
+            set { liveChessRun = value; }
+        }
+
         private String lastRun;
 
         public String LastRun
@@ -95,5 +111,43 @@ namespace dgt_delay_stream_log_analyser
             get { return errorMessage; }
             set { errorMessage = value; }
         }
+
+        private String fullFileName;
+
+        public String FullFileName
+        {
+            get { return fullFileName; }
+            set { fullFileName = value; }
+        }
+
+        private String playing;
+
+        public String Playing
+        {
+            get { return playing; }
+            set { playing = value; }
+        }
+        private String wins;
+
+        public String Wins
+        {
+            get { return wins; }
+            set { wins = value; }
+        }
+        private String draw;
+
+        public String Draw
+        {
+            get { return draw; }
+            set { draw = value; }
+        }
+        private String loses;
+
+        public String Loses
+        {
+            get { return loses; }
+            set { loses = value; }
+        }
+
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Configuration;
+using System.IO;
 
 namespace dgt_delay_stream_log_analyser
 {
@@ -19,54 +20,85 @@ namespace dgt_delay_stream_log_analyser
             {
                 Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
                 String logFileName = ConfigurationManager.AppSettings["logFileName"];
+                if (ConfigurationManager.AppSettings["logFileName"] == "*") {
+                    logFileName = "dgt-delay-stream." + date.ToString("yyyy-MM-dd") + ".log";
+                }
+                String logFileNameFull = Directory.GetCurrentDirectory() + "\\" + logFileName;
                 String logFile = Read(logFileName);
                 String[] logFileArray = Regex.Split(logFile, "\n");
 
-                int numberOfLoops = CountWords(logFile, @"=== Start of loop ===");
+                int numberOfLoops = CountWords(logFile, @"=== Start of loop");
                 int numberErrors = CountWords(logFile, @"[main] ERROR");
 
                 String lastFileUpload = "N/A";
+                String lastLiveChessUpload = "N/A";
                 String lastLoop = "N/A";
                 String lastError = "N/A";
+                String statistic = "N/A";
                 for (int i = logFileArray.Count() - 1; i >= 0; i--)
                 {
+                    if (lastLiveChessUpload == "N/A")
+                    {
+                        if (logFileArray[i].Contains("Livechess games.pgn dateTime:"))
+                        {
+                            lastLiveChessUpload = logFileArray[i].Substring(logFileArray[i].IndexOf(": ") + 1).Replace("#", "").Trim();
+                        }
+                    }
                     if (lastFileUpload == "N/A")
                     {
                         if (logFileArray[i].Contains("com.jogo.MainRunningClass.upload - FTP publishing"))
                         {
-                            lastFileUpload = logFileArray[i].Substring(0, logFileArray[i].IndexOf("[main]"));
+                            lastFileUpload = logFileArray[i].Substring(0, logFileArray[i].IndexOf("."));
                         }
+                        if (logFileArray[i].Contains("com.jogo.MainRunningClass.upload - FTP ignored, not changed:"))
+                        {
+                            lastFileUpload = logFileArray[i].Substring(0, logFileArray[i].IndexOf("."));
+                        } 
                     }
                     if (lastLoop == "N/A")
                     {
-                        if (logFileArray[i].Contains("=== Start of loop ==="))
+                        if (logFileArray[i].Contains("=== Start of loop"))
                         {
-                            lastLoop = logFileArray[i].Substring(0, logFileArray[i].IndexOf("[main]"));
+                            lastLoop = logFileArray[i].Substring(0, logFileArray[i].IndexOf("."));
                         }
                     }
                     if (lastError == "N/A")
                     {
                         if (logFileArray[i].Contains("[main] ERROR"))
                         {
-                            lastError = logFileArray[i].Substring(0, logFileArray[i].IndexOf("[main]"));
+                            lastError = logFileArray[i].Substring(0, logFileArray[i].IndexOf("."));
                         }
                     }
-                    if ((lastFileUpload != "N/A") && (lastLoop != "N/A") && (lastError != "N/A"))
+                    if (statistic == "N/A")
+                    {
+                        if (logFileArray[i].Contains("LogStatistic - Playing"))
+                        {
+                            statistic = logFileArray[i].Substring(logFileArray[i].IndexOf("Playing"));
+                            //Playing 7 # White win 5 # Draw 8 # Black win 0 # 
+                        }
+                    }
+                    if ((lastFileUpload != "N/A") && (lastLoop != "N/A") && (lastError != "N/A") && (statistic != "N/A"))
                     {
                         break;
                     }
                 }
 
-                String loopStatus = CheckStatus(date, lastLoop, 1 * 60);
-                String fileUploadStatus = CheckStatus(date, lastFileUpload, 1 * 60);
-                String errorStatus = CheckStatus(date, lastError, 15 * 60);
-
+                String loopStatus = CheckStatus(date, lastLoop, Convert.ToInt16(ConfigurationManager.AppSettings["loopStatusErrorTime"]));
+                String fileUploadStatus = CheckStatus(date, lastFileUpload, Convert.ToInt16(ConfigurationManager.AppSettings["lastFileUploadErrorTime"]));
+                String errorStatus = CheckStatus(date, lastError, Convert.ToInt16(ConfigurationManager.AppSettings["errorStatusErrorTime"]), '<');
+                String livechessRunStatus = CheckStatus(date, lastLiveChessUpload, Convert.ToInt16(ConfigurationManager.AppSettings["livechessUploadErrorTime"]));
+                
                 aobj.LastRun = date.ToString();
                 aobj.LogFileName = logFileName;
+                aobj.FullFileName = logFileNameFull;
 
                 aobj.LastLoop = lastLoop;
                 aobj.LastFileUpload = lastFileUpload;
                 aobj.LastError = lastError;
+                aobj.LiveChessRun = lastLiveChessUpload;
+                aobj.LiveChessRunStatus = livechessRunStatus;
+
+                
 
                 aobj.LoopStatus = loopStatus;
                 aobj.FileUploadStatus = fileUploadStatus;
@@ -75,6 +107,16 @@ namespace dgt_delay_stream_log_analyser
                 aobj.CountErrors = numberErrors.ToString();
                 aobj.CountLoops = numberOfLoops.ToString();
                 aobj.ErrorMessage = "";
+
+                if (statistic != "N/A") {
+                    aobj.Playing = statistic.Substring(0, statistic.IndexOf("#")).Replace("Playing", "").Trim();
+                    aobj.Wins = statistic.Substring(statistic.IndexOf("White win"));
+                    aobj.Wins = aobj.Wins.Substring(0, aobj.Wins.IndexOf("#")).Replace("White win", "").Trim();
+                    aobj.Draw = statistic.Substring(statistic.IndexOf("Draw"));
+                    aobj.Draw = aobj.Draw.Substring(0, aobj.Draw.IndexOf("#")).Replace("Draw", "").Trim();
+                    aobj.Loses = statistic.Substring(statistic.IndexOf("Black win"));
+                    aobj.Loses = aobj.Loses.Substring(0, aobj.Loses.IndexOf("#")).Replace("Black win", "").Trim();
+                }
             } catch (Exception ex){
                 aobj.LastRun = date.ToString();
                 aobj.LogFileName = @"Error";
@@ -96,12 +138,20 @@ namespace dgt_delay_stream_log_analyser
         }
 
         private string CheckStatus(DateTime date, String dateFromLog, Int16 seconds) {
+            return CheckStatus(date, dateFromLog, seconds, '>');
+        }
+
+        private string CheckStatus(DateTime date, String dateFromLog, Int16 seconds, Char sign)
+        {
             String status = "";
             if (dateFromLog != "N/A")
             {
                 DateTime dt = DateTime.Parse(dateFromLog);
 
-                if ((ToUnixTimeStamp(date) - ToUnixTimeStamp(dt)) > seconds)
+                if ((sign == '>') && ((ToUnixTimeStamp(date) - ToUnixTimeStamp(dt)) > seconds))
+                {
+                    status = "error";
+                } else if ((sign == '<') && ((ToUnixTimeStamp(date) - ToUnixTimeStamp(dt)) < seconds))
                 {
                     status = "error";
                 }
@@ -122,9 +172,25 @@ namespace dgt_delay_stream_log_analyser
         }
 
         private String Read(String file) {
-            string fileString = System.IO.File.ReadAllText(file);
-
-            return fileString;
+            try
+            {
+                using (FileStream fileStream = new FileStream(
+                    file,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite))
+                {
+                    using (StreamReader streamReader = new StreamReader(fileStream))
+                    {
+                        return streamReader.ReadToEnd();
+                    }
+                }
+            }
+            catch 
+            {
+                
+            }
+            return "";
         }
     }
 }

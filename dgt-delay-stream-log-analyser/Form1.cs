@@ -33,11 +33,15 @@ namespace dgt_delay_stream_log_analyser
             AnalyseObject aobj = analyse.Refresh();
 
             this.rlLogFile.Text = aobj.LogFileName;
+            this.rlFullPath.Text = aobj.FullFileName;
             this.rlLastRun.Text = aobj.LastRun;
-
+            this.rbLastFileLiveChess.Text = aobj.LiveChessRun;
+            
             this.txtErrors.Text = aobj.CountErrors;
             this.txtLoops.Text = aobj.CountLoops;
 
+            this.txtPlaying.Text = aobj.Playing;
+            this.txtWinDrawLose.Text = aobj.Wins + " - " + aobj.Draw + " - " + aobj.Loses;
             this.rbLastLoop.Text = aobj.LastLoop.Replace(" ",  Environment.NewLine);
             this.rbLastFileUpload.Text = aobj.LastFileUpload.Replace(" ", Environment.NewLine);
             this.rbLastError.Text = aobj.LastError.Replace(" ", Environment.NewLine);
@@ -50,6 +54,12 @@ namespace dgt_delay_stream_log_analyser
             {
                 this.rbLastFileUpload.BackColor = colorError;
             }
+
+            this.rbLastFileLiveChess.BackColor = colorOK;
+            if (aobj.LiveChessRunStatus == "error")
+            {
+                this.rbLastFileLiveChess.BackColor = colorError;
+            }            
             
             this.rbLastLoop.BackColor = colorOK;
             if (aobj.LoopStatus == "error")

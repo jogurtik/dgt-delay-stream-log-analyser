@@ -1,0 +1,9 @@
+C:\Data\Documents\GitHub\dgt-delay-stream-log-analyser\dgt-delay-stream-log-analyser\bin\Debug\dgt-delay-stream-log-analyser.exe.config
+C:\Data\Documents\GitHub\dgt-delay-stream-log-analyser\dgt-delay-stream-log-analyser\obj\Debug\dgt-delay-stream-log-analyser.csprojResolveAssemblyReference.cache
+C:\Data\Documents\GitHub\dgt-delay-stream-log-analyser\dgt-delay-stream-log-analyser\obj\Debug\dgt_delay_stream_log_analyser.frmMainForm.resources
+C:\Data\Documents\GitHub\dgt-delay-stream-log-analyser\dgt-delay-stream-log-analyser\obj\Debug\dgt_delay_stream_log_analyser.Properties.Resources.resources
+C:\Data\Documents\GitHub\dgt-delay-stream-log-analyser\dgt-delay-stream-log-analyser\obj\Debug\dgt-delay-stream-log-analyser.csproj.GenerateResource.Cache
+C:\Data\Documents\GitHub\dgt-delay-stream-log-analyser\dgt-delay-stream-log-analyser\bin\Debug\dgt-delay-stream-log-analyser.exe
+C:\Data\Documents\GitHub\dgt-delay-stream-log-analyser\dgt-delay-stream-log-analyser\bin\Debug\dgt-delay-stream-log-analyser.pdb
+C:\Data\Documents\GitHub\dgt-delay-stream-log-analyser\dgt-delay-stream-log-analyser\obj\Debug\dgt-delay-stream-log-analyser.exe
+C:\Data\Documents\GitHub\dgt-delay-stream-log-analyser\dgt-delay-stream-log-analyser\obj\Debug\dgt-delay-stream-log-analyser.pdb
