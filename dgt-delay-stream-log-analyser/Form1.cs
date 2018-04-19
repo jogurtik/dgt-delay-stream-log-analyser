@@ -13,7 +13,6 @@ namespace dgt_delay_stream_log_analyser
         private formGameDetails formGameDetail;
         private string[] games;
         private String lastIdent;
-        bool ignoreLog;
 
         public frmMainForm()
         {
