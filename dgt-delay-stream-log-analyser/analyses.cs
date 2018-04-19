@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Configuration;
 using System.IO;
+using System.Net;
 
 namespace dgt_delay_stream_log_analyser
 {
@@ -18,13 +19,28 @@ namespace dgt_delay_stream_log_analyser
             DateTime date = DateTime.Now;
             try
             {
-                Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                String logFileName = ConfigurationManager.AppSettings["logFileName"];
+                Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);                
+                String logFileName = ConfigurationManager.AppSettings["logFileName"];                
                 if (ConfigurationManager.AppSettings["logFileName"] == "*") {
                     logFileName = "dgt-delay-stream." + date.ToString("yyyy-MM-dd") + ".log";
                 }
-                String logFileNameFull = Directory.GetCurrentDirectory() + "\\" + logFileName;
-                String logFile = Read(logFileName);
+                aobj.Title = ConfigurationManager.AppSettings["title"];
+                String liveChessPgn = ConfigurationManager.AppSettings["gamesFileName"];
+                if (ConfigurationManager.AppSettings["gamesFileName"] == "*")
+                {
+                    liveChessPgn = Directory.GetCurrentDirectory() + "\\livechess\\games.pgn";
+                }
+                aobj.LiveChessPgn = liveChessPgn;
+                String logFile = @"";
+                if (logFileName.StartsWith("ftp://"))
+                {
+                    
+                    this.ReadFromFtp(logFileName);
+                }
+                else
+                {
+                    logFile = Read(logFileName);                    
+                }                                
                 String[] logFileArray = Regex.Split(logFile, "\n");
 
                 int numberOfLoops = CountWords(logFile, @"=== Start of loop");
@@ -34,7 +50,7 @@ namespace dgt_delay_stream_log_analyser
                 String lastLiveChessUpload = "N/A";
                 String lastLoop = "N/A";
                 String lastError = "N/A";
-                String statistic = "N/A";
+                String statistic = "N/A";                
                 for (int i = logFileArray.Count() - 1; i >= 0; i--)
                 {
                     if (lastLiveChessUpload == "N/A")
@@ -90,14 +106,12 @@ namespace dgt_delay_stream_log_analyser
                 
                 aobj.LastRun = date.ToString();
                 aobj.LogFileName = logFileName;
-                aobj.FullFileName = logFileNameFull;
 
                 aobj.LastLoop = lastLoop;
                 aobj.LastFileUpload = lastFileUpload;
                 aobj.LastError = lastError;
                 aobj.LiveChessRun = lastLiveChessUpload;
                 aobj.LiveChessRunStatus = livechessRunStatus;
-
                 
 
                 aobj.LoopStatus = loopStatus;
@@ -119,6 +133,7 @@ namespace dgt_delay_stream_log_analyser
                 }
             } catch (Exception ex){
                 aobj.LastRun = date.ToString();
+                
                 aobj.LogFileName = @"Error";
 
                 aobj.LastLoop = @"";
@@ -127,14 +142,40 @@ namespace dgt_delay_stream_log_analyser
 
                 aobj.LoopStatus = @"";
                 aobj.FileUploadStatus = @"";
-                aobj.ErrorStatus = @"";
+                aobj.ErrorStatus = @"N/A";
 
                 aobj.CountErrors = @"";
                 aobj.CountLoops = @"";
-
-                aobj.ErrorMessage = ex.ToString();  
+                
+                aobj.ErrorMessage = ex.ToString();                  
             }
             return aobj;
+        }
+
+        public string ReadFromFtp(String link)
+        {
+            var u = new Uri(link);
+            var host = u.Host;
+            var ui = u.UserInfo.Split(':');
+            var user = ui[0];
+            var pwd = ui[1];
+
+            WebClient request = new WebClient();
+            string url = link;
+            request.Credentials = new NetworkCredential(user, pwd);
+
+            try
+            {
+                byte[] newFileData = request.DownloadData(url);
+                string fileString = System.Text.Encoding.UTF8.GetString(newFileData);
+                return fileString;
+            }
+            catch
+            {
+                return "Error ftp";
+                // Do something such as log error, but this is based on OP's original code
+                // so for now we do nothing.
+            }
         }
 
         private string CheckStatus(DateTime date, String dateFromLog, Int16 seconds) {
@@ -146,12 +187,18 @@ namespace dgt_delay_stream_log_analyser
             String status = "";
             if (dateFromLog != "N/A")
             {
-                DateTime dt = DateTime.Parse(dateFromLog);
-
-                if ((sign == '>') && ((ToUnixTimeStamp(date) - ToUnixTimeStamp(dt)) > seconds))
-                {
-                    status = "error";
-                } else if ((sign == '<') && ((ToUnixTimeStamp(date) - ToUnixTimeStamp(dt)) < seconds))
+                try { 
+                    DateTime dt = DateTime.Parse(dateFromLog);
+                    if ((sign == '>') && ((ToUnixTimeStamp(date) - ToUnixTimeStamp(dt)) > seconds))
+                    {
+                        status = "error";
+                    }
+                    else if ((sign == '<') && ((ToUnixTimeStamp(date) - ToUnixTimeStamp(dt)) < seconds))
+                    {
+                        status = "error";
+                    }
+                }
+                catch
                 {
                     status = "error";
                 }
@@ -188,9 +235,8 @@ namespace dgt_delay_stream_log_analyser
             }
             catch 
             {
-                
+                return "Error read log";
             }
-            return "";
         }
     }
 }

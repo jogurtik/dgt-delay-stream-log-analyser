@@ -149,5 +149,20 @@ namespace dgt_delay_stream_log_analyser
             set { loses = value; }
         }
 
+        private String liveChessPgn;
+
+        public String LiveChessPgn
+        {
+            get { return liveChessPgn; }
+            set { liveChessPgn = value; }
+        }
+
+        private String title;
+
+        public String Title
+        {
+            get { return title; }
+            set { title = value; }
+        }        
     }
 }
