@@ -206,26 +206,32 @@ namespace dgt_delay_stream_log_analyser
 
             }
             Image img = null;
+            String tag = "";
             switch(LastFen[position])
             {
-                case '1': img = null;  break;
-                case 'K': img = (Image)Image.FromFile("images/wk.png"); break;
-                case 'Q': img = (Image)Image.FromFile("images/wq.png"); break;
-                case 'N': img = (Image)Image.FromFile("images/wn.png"); break;
-                case 'B': img = (Image)Image.FromFile("images/wb.png"); break;
-                case 'R': img = (Image)Image.FromFile("images/wr.png"); break;
-                case 'P': img = (Image)Image.FromFile("images/wp.png"); break;
-                case 'k': img = (Image)Image.FromFile("images/bk.png"); break;
-                case 'q': img = (Image)Image.FromFile("images/bq.png"); break;
-                case 'n': img = (Image)Image.FromFile("images/bn.png"); break;
-                case 'b': img = (Image)Image.FromFile("images/bb.png"); break;
-                case 'r': img = (Image)Image.FromFile("images/br.png"); break;
-                case 'p': img = (Image)Image.FromFile("images/bp.png"); break;
+                case '1': img = null;  tag = "1";  break;
+                case 'K': img = (Image)Image.FromFile("images/wk.png"); tag = "K"; break;
+                case 'Q': img = (Image)Image.FromFile("images/wq.png"); tag = "Q"; break;
+                case 'N': img = (Image)Image.FromFile("images/wn.png"); tag = "N"; break;
+                case 'B': img = (Image)Image.FromFile("images/wb.png"); tag = "B"; break;
+                case 'R': img = (Image)Image.FromFile("images/wr.png"); tag = "R"; break;
+                case 'P': img = (Image)Image.FromFile("images/wp.png"); tag = "P"; break;
+                case 'k': img = (Image)Image.FromFile("images/bk.png"); tag = "k"; break;
+                case 'q': img = (Image)Image.FromFile("images/bq.png"); tag = "q"; break;
+                case 'n': img = (Image)Image.FromFile("images/bn.png"); tag = "n"; break;
+                case 'b': img = (Image)Image.FromFile("images/bb.png"); tag = "b"; break;
+                case 'r': img = (Image)Image.FromFile("images/br.png"); tag = "r"; break;
+                case 'p': img = (Image)Image.FromFile("images/bp.png"); tag = "p"; break;
             }
-            if ((img == null) || (tileSize == 60)) { 
+            
+            if ((img == null) && (newPanel.BackgroundImage != null)) {
+                // if we are clearing image and some image is there, clear it
                 newPanel.BackgroundImage = img;
-            } else {
+            } else if ((img != null) && ((newPanel.BackgroundImage == null) || (newPanel.BackgroundImage.Tag == null) ||                 
+                (newPanel.BackgroundImage.Tag.ToString() != tag))) {
+                // if we are setting some image and there is some image, or image is different
                 Image resized = ResizeImage(img, tileSize, tileSize);
+                resized.Tag = tag;
                 newPanel.BackgroundImage = resized;
             }
         }
