@@ -29,11 +29,18 @@ namespace dgt_delay_stream_log_analyser
         /// </summary>
         public void Dispose()
         {
-            if ((cmd != null) && (!cmd.HasExited))
+            try
             {
-                SendLine(cmd, "stop");
-                SendLine(cmd, "quit");
-                cmd.Kill();
+                if (cmd != null)
+                {
+                    SendLine(cmd, "stop");
+                    SendLine(cmd, "quit");
+                    cmd.Kill();
+                }
+            }
+            catch
+            {
+
             }
         }
 

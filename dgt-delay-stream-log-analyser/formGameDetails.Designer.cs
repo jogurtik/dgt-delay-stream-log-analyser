@@ -202,6 +202,8 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "formGameDetails";
             this.Text = "formGameDetails";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.formGameDetails_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.formGameDetails_FormClosed);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.rpMoves.ResumeLayout(false);

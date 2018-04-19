@@ -507,5 +507,15 @@ namespace dgt_delay_stream_log_analyser
                 return;
             }
         }
+
+        private void formGameDetails_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            finishAnalyses();
+        }
+
+        private void formGameDetails_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            finishAnalyses();
+        }
     }
 }
